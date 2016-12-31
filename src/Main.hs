@@ -43,9 +43,6 @@ transactionDateBetween start end = P.filter go
 
 
 -- between meaning on or after start but before end
--- dateBetween :: forall (rs :: [*]) (m :: *) (f :: * -> *).
--- (forall f. Functor f => ((Chicago -> f Chicago) -> Record rs -> f (Record rs))) ->
--- dateBetween :: forall rs f m.
 dateBetween :: (forall f. Functor f => ((Chicago -> f Chicago) -> Record rs -> f (Record rs)))
             -> Day
             -> Day
@@ -68,8 +65,6 @@ dateBetween target start end = P.filter (\r -> let targetDate = (rget target r) 
 -- {Service Area :-> "Childrens Services", Account Description :-> "IT Services", Creditor :-> "123-REG.CO.UK", Transaction Date :-> Chicago (TimeIn 2014-04-23 00:00:00 CDT), JV Reference :-> 93, JV Date :-> Chicago (TimeIn 2014-05-20 00:00:00 CDT), JV Value :-> 143.81}
 -- {Service Area :-> "Childrens Services", Account Description :-> "Equipment and Materials Repair", Creditor :-> "AFE SERVICELINE", Transaction Date :-> Chicago (TimeIn 2014-04-02 00:00:00 CDT), JV Reference :-> 6, JV Date :-> Chicago (TimeIn 2014-05-20 00:00:00 CDT), JV Value :-> 309.38}
 -- {Service Area :-> "Childrens Services", Account Description :-> "Equipment and Materials Repair", Creditor :-> "AFE SERVICELINE", Transaction Date :-> Chicago (TimeIn 2014-04-02 00:00:00 CDT), JV Reference :-> 7, JV Date :-> Chicago (TimeIn 2014-05-20 00:00:00 CDT), JV Value :-> 218.76}
-
-
 
 main :: IO ()
 main = do

@@ -38,6 +38,44 @@ transactionDateBetween start end = P.filter go
                  targetDay >= start && targetDay < end
 
 
+-- between meaning on or after start but before end
+dateBetween :: _
+            -> Day
+            -> Day
+            -> Pipe (Record rs) (Record rs) IO r
+dateBetween target start end = P.filter go
+  where go :: Record rs -> _
+        go r = let targetDate = rget target r :: Chicago
+                   targetDate' = chicagoToZoned targetDate :: ZonedTime
+                   targetDay = localDay (zonedTimeToLocalTime targetDate') :: Day
+               in
+                 targetDay >= start && targetDay < end
+-- type error
+-- src/Main.hs:48:38: error: …
+--     • Couldn't match expected type ‘(Chicago -> f Chicago)
+--                                     -> Record rs1 -> f (Record rs1)’
+--                   with actual type ‘t’
+--         because type variable ‘f’ would escape its scope
+--       This (rigid, skolem) type variable is bound by
+--         a type expected by the context:
+--           Functor f => (Chicago -> f Chicago) -> Record rs1 -> f (Record rs1)
+--         at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:48:33-45
+--     • In the first argument of ‘rget’, namely ‘target’
+--       In the expression: rget target r :: Chicago
+--       In an equation for ‘targetDate’:
+--           targetDate = rget target r :: Chicago
+--     • Relevant bindings include
+--         r :: Record rs1
+--           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:48:12)
+--         go :: Record rs1 -> Bool
+--           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:48:9)
+--         target :: t
+--           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:46:13)
+--         dateBetween :: t -> Day -> Day -> Pipe (Record rs) (Record rs) IO r
+--           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:46:1)
+-- Compilation failed.
+
+
 -- then we can answer something like: How many transactions happened in the month of April
 -- λ> P.length (transactions >-> transactionDateBetween (d 2014 4 1) (d 2014 4 30))
 -- 314

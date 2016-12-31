@@ -1,3 +1,6 @@
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
@@ -39,40 +42,49 @@ transactionDateBetween start end = P.filter go
 
 
 -- between meaning on or after start but before end
-dateBetween :: _
+dateBetween :: forall (rs :: [*]) (m :: *) (f :: * -> *).
+               (Functor f) =>
+               ((Chicago -> f Chicago) -> Record rs -> f (Record rs))
             -> Day
             -> Day
-            -> Pipe (Record rs) (Record rs) IO r
+            -> Pipe (Record rs) (Record rs) IO m
 dateBetween target start end = P.filter go
   where go :: Record rs -> _
-        go r = let targetDate = rget target r :: Chicago
+        go r = let targetDate = (rget target r) :: Chicago
                    targetDate' = chicagoToZoned targetDate :: ZonedTime
                    targetDay = localDay (zonedTimeToLocalTime targetDate') :: Day
                in
                  targetDay >= start && targetDay < end
 -- type error
--- src/Main.hs:48:38: error: …
---     • Couldn't match expected type ‘(Chicago -> f Chicago)
---                                     -> Record rs1 -> f (Record rs1)’
---                   with actual type ‘t’
---         because type variable ‘f’ would escape its scope
---       This (rigid, skolem) type variable is bound by
+-- src/Main.hs:53:39: error: …
+--     • Couldn't match type ‘f’ with ‘f1’
+--       ‘f’ is a rigid type variable bound by
+--         the type signature for:
+--           dateBetween :: forall (rs :: [*]) m (f :: * -> *).
+--                          Functor f =>
+--                          ((Chicago -> f Chicago) -> Record rs -> f (Record rs))
+--                          -> Day -> Day -> Pipe (Record rs) (Record rs) IO m
+--         at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:45:45
+--       ‘f1’ is a rigid type variable bound by
 --         a type expected by the context:
---           Functor f => (Chicago -> f Chicago) -> Record rs1 -> f (Record rs1)
---         at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:48:33-45
+--           forall (f1 :: * -> *).
+--           Functor f1 =>
+--           (Chicago -> f1 Chicago) -> Record rs -> f1 (Record rs)
+--         at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:53:34
+--       Expected type: (Chicago -> f1 Chicago)
+--                      -> Record rs -> f1 (Record rs)
+--         Actual type: (Chicago -> f Chicago) -> Record rs -> f (Record rs)
 --     • In the first argument of ‘rget’, namely ‘target’
---       In the expression: rget target r :: Chicago
+--       In the expression: (rget target r) :: Chicago
 --       In an equation for ‘targetDate’:
---           targetDate = rget target r :: Chicago
+--           targetDate = (rget target r) :: Chicago
 --     • Relevant bindings include
---         r :: Record rs1
---           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:48:12)
---         go :: Record rs1 -> Bool
---           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:48:9)
---         target :: t
---           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:46:13)
---         dateBetween :: t -> Day -> Day -> Pipe (Record rs) (Record rs) IO r
---           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:46:1)
+--         target :: (Chicago -> f Chicago) -> Record rs -> f (Record rs)
+--           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:51:13)
+--         dateBetween :: ((Chicago -> f Chicago)
+--                         -> Record rs -> f (Record rs))
+--                        -> Day -> Day -> Pipe (Record rs) (Record rs) IO m
+--           (bound at /home/cody/source/frames-credit-card-trans-demo/src/Main.hs:51:1)
 -- Compilation failed.
 
 

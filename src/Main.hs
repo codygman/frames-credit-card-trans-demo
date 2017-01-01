@@ -16,6 +16,7 @@ import Frames.Time.Chicago.TimeIn
 import Data.Time
 import Control.Lens
 import Frames.Diff
+import Data.Time.Lens
 
 
 tableTypes' rowGen { rowTypeName = "Transaction"
@@ -51,8 +52,8 @@ dateBetween :: (forall f. Functor f => ((Chicago -> f Chicago) -> Record rs -> f
 dateBetween target start end = P.filter (\r -> let targetDate = (rget target r) :: Chicago
                                                    targetDate' = chicagoToZoned targetDate :: ZonedTime
                                                    targetDay = localDay (zonedTimeToLocalTime targetDate') :: Day
-                                          in
-                                            targetDay >= start && targetDay < end
+                                               in
+                                                 targetDay >= start && targetDay < end
                                         )
 -- λ> P.length (transactions >-> dateBetween transactionDate (d 2014 4 1) (d 2014 4 30))
 -- 314
@@ -75,5 +76,6 @@ selfJoinTest = do
 main :: IO ()
 main = do
   -- runEffect $ transactions >-> transactionDateBetween (fromGregorian 2014 4 1) (fromGregorian 2014 4 2) >-> P.take 5 >-> P.print
-  runEffect $ transactions >-> transactionDateBetween (fromGregorian 2014 4 2) (fromGregorian 2014 4 3)  >-> P.take 5 >-> P.print
+  -- runEffect $ transactions >-> transactionDateBetween (fromGregorian 2014 4 2) (fromGregorian 2014 4 3)  >-> P.take 5 >-> P.print
+  runEffect $ transactions >-> transactionDate `withinPastNDays` 30 >-> P.take 5 >-> P.print
   putStrLn "hello world"

@@ -15,6 +15,7 @@ import Frames.Time.Chicago.Columns
 import Frames.Time.Chicago.TimeIn
 import Data.Time
 import Control.Lens
+import Frames.Diff
 
 
 tableTypes' rowGen { rowTypeName = "Transaction"
@@ -65,6 +66,11 @@ dateBetween target start end = P.filter (\r -> let targetDate = (rget target r) 
 -- {Service Area :-> "Childrens Services", Account Description :-> "IT Services", Creditor :-> "123-REG.CO.UK", Transaction Date :-> Chicago (TimeIn 2014-04-23 00:00:00 CDT), JV Reference :-> 93, JV Date :-> Chicago (TimeIn 2014-05-20 00:00:00 CDT), JV Value :-> 143.81}
 -- {Service Area :-> "Childrens Services", Account Description :-> "Equipment and Materials Repair", Creditor :-> "AFE SERVICELINE", Transaction Date :-> Chicago (TimeIn 2014-04-02 00:00:00 CDT), JV Reference :-> 6, JV Date :-> Chicago (TimeIn 2014-05-20 00:00:00 CDT), JV Value :-> 309.38}
 -- {Service Area :-> "Childrens Services", Account Description :-> "Equipment and Materials Repair", Creditor :-> "AFE SERVICELINE", Transaction Date :-> Chicago (TimeIn 2014-04-02 00:00:00 CDT), JV Reference :-> 7, JV Date :-> Chicago (TimeIn 2014-05-20 00:00:00 CDT), JV Value :-> 218.76}
+
+-- NOTE results are useless
+selfJoinTest = do
+  joined <- innerJoin transactions transactionDate transactions transactionDate
+  mapM_ (print . frameRow joined) [0..10]
 
 main :: IO ()
 main = do

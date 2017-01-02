@@ -21,5 +21,24 @@ executable frames-credit-card-trans-demo
                      , base >= 4.7 && < 5
                      , frames-diff
                      , lens
+                     , old-locale >= 1.0.0.7
                      , pipes
+                     , rapid
                      , text
+                     , time
+                     , time-lens
+
+benchmark benchtest
+  build-depends: base,
+                criterion,
+                clock,
+                Frames,
+                frames-diff,
+                pipes,
+                formatting >= 6.1.0,
+                time
+  default-language: Haskell2010
+  ghc-options:      -Wall -O2  -threaded -with-rtsopts=-N
+  hs-source-dirs:   benchmarks
+  main-is:          Bench.hs
+  type:             exitcode-stdio-1.0
